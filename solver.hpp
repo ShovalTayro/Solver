@@ -13,7 +13,7 @@ namespace solver{
         double c;
 
         public:
-        RealVariable() : a(0), b(0), c(0) {}
+        RealVariable() : a(0), b(1), c(0) {}
         
         RealVariable(double a, double b, double c){
             this->a = a;
@@ -53,7 +53,7 @@ namespace solver{
 
 
         public: 
-        ComplexVariable() : a(0), b(0), c(0) {}
+        ComplexVariable() : a(0.0), b(1.0,0.0), c(0.0) {}
         
         ComplexVariable(complex<double> a, complex<double> b, complex<double> c){
             this->a = complex(a);
