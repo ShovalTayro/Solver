@@ -1,8 +1,10 @@
 #include "solver.hpp"
 #include <stdio.h>
 #include <string>
+#include <complex>
 
 using namespace std;
+
 namespace solver{
     RealVariable operator^ (const RealVariable& x, const double n){
         if(n == 0) return RealVariable(0,0,1);
@@ -25,9 +27,9 @@ namespace solver{
         if(x.a!=0 && y.b!=0) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
         if(x.b!=0 && y.a!=0) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
         //can make the operator
-        return RealVariable(x.a * y.a + x.a * y.b + x.a * y.c,
-                            x.b * y.a + x.b * y.b + x.b * y.c,
-                            x.c * y.a + x.c * y.b + x.c * y.c);
+        return RealVariable(x.a * y.c + y.a * x.c + x.c * y.b,
+                            x.b * y.c + y.b * x.c,
+                            x.c * y.c);
     }
 
     RealVariable operator/ (const RealVariable& x, const double n){
@@ -35,12 +37,13 @@ namespace solver{
         return RealVariable((x.a)/n, (x.b)/n, (x.c)/n);
     }
 
-    friend RealVariable operator/ (const double n, const RealVariable& y){
+    RealVariable operator/ (const double n, const RealVariable& y){
         /*
-        ***************************
-        *****************************
-        ***************************88
+        *********************
+        *********************
+        *********************
     */
+   return RealVariable(0,0,0);
     }
     
     RealVariable operator/ (const RealVariable& x, const RealVariable& y){
@@ -49,6 +52,7 @@ namespace solver{
         ********************
         ********************
     */
+   return RealVariable(0,0,0);
     }
     
     RealVariable operator- (const double n, const RealVariable& x){
@@ -105,7 +109,7 @@ namespace solver{
 
     ComplexVariable operator* (const ComplexVariable& x, const complex<double> n) {
         return ComplexVariable(x.a*n, x.b*n, x.c*n);
-    }s
+    }
 
     ComplexVariable operator* (const complex<double> n , const ComplexVariable& x) {
         return ComplexVariable(x.a*n, x.b*n, x.c*n);
@@ -113,34 +117,48 @@ namespace solver{
 
     ComplexVariable operator* (const ComplexVariable& x, const ComplexVariable& y){
         //check if we can make * operator - there is a limit:  power<=2 
-        if(x.a != complex(0,0) && y.a != complex(0,0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
-        if(x.a != complex(0,0) && y.b != complex(0,0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
-        if(x.b != complex(0,0) && y.a != complex(0,0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
+        if(x.a != complex(0.0,0.0) && y.a != complex(0.0,0.0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
+        if(x.a != complex(0.0,0.0) && y.b != complex(0.0,0.0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
+        if(x.b != complex(0.0,0.0) && y.a != complex(0.0,0.0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
         //can make the operator
-        return RealVariable(x.a * y.a + x.a * y.b + x.a * y.c,
-                            x.b * y.a + x.b * y.b + x.b * y.c,
-                            x.c * y.a + x.c * y.b + x.c * y.c);
+        return ComplexVariable(x.a * y.c + y.a * x.c + x.c * y.b,
+                            x.b * y.c + y.b * x.c,
+                            x.c * y.c);
     }
 
     ComplexVariable operator/ (const ComplexVariable& x, const complex<double> n){
-        if (n == complex(0.0,0.0)) __throw_invalid_argument("canwt divide by zero");
+        if (n == complex(0.0,0.0)) __throw_invalid_argument("can't divide by zero");
         return ComplexVariable((x.a)/n, (x.b)/n , (x.c)/n);
     }
 
     ComplexVariable operator/ (const complex<double> n, const ComplexVariable& y){
         /*
-        *****************************
-        *****************************
-        *****************************
-    */
+        *******************
+        *******************
+        *******************
+        */
+       return ComplexVariable(0.0, 0.0 , 0.0);
     }
     
     ComplexVariable operator/ (const ComplexVariable& x, const ComplexVariable& y){
-      /*
-        *****************************
-        *****************************
-        *****************************
-    */
+        if(y.a == complex<double>(0.0,0.0) &&
+           y.b == complex<double>(0.0,0.0) && 
+           y.c == complex<double>(0.0,0.0)) __throw_invalid_argument("can't divided by zero");
+        
+        else if(y.a == complex<double>(0.0,0.0) &&
+           y.b == complex<double>(0.0,0.0) && 
+           y.c != complex<double>(0.0,0.0)) return ComplexVariable(x.a / y.c , x.b / y.c, x.c / y.c);
+
+        else if(y.a == complex<double>(0.0,0.0) &&
+           y.b != complex<double>(0.0,0.0) && 
+           y.c == complex<double>(0.0,0.0)) return ComplexVariable(0, x.b / y.b , 0);
+
+        else if(y.a != complex<double>(0.0,0.0) &&
+           y.b != complex<double>(0.0,0.0) && 
+           y.c == complex<double>(0.0,0.0)) return ComplexVariable(x.a / y.a, x.b / y.b , 0);
+
+        else __throw_invalid_argument("can't divied")
+        
     }
 
     ComplexVariable operator- (const ComplexVariable& x, const complex<double> n){
@@ -178,15 +196,36 @@ namespace solver{
     ComplexVariable operator== (const ComplexVariable& x, const ComplexVariable& y){
         return x-y;
     }  
-
+    
     double solve(const RealVariable &x){
-        //not yet
-        return 2.5;
+        double a = x.a;
+        double b = x.b;
+        double c = x.c;
+        //if it is a linear equation
+        if(a == 0) {
+            //if there is no X
+            if(b == 0 && c != 0) __throw_invalid_argument("To the equation have no solution");
+            else return c/-b;
+        }
+
+        if((-b + b*b -4*a*c) >= 0){
+            return ( (-b + sqrt(-b + b*b -4*a*c)) / (2*a) );
+        }
+        else __throw_invalid_argument("There is no real solution");
     }
+
     complex<double> solve(const ComplexVariable &x){
-        //not yet
-        std::complex<double> a(1,1);
-        return a;
+        complex<double> a = x.a;
+        complex<double> b = x.b;
+        complex<double> c = x.c;
+        
+        //if it is a linear equation
+        if(a == complex(0.0,0.0)) {
+            //if there is no X
+            if(b == complex(0.0,0.0) && c != complex(0.0,0.0)) __throw_runtime_error("To the equation have no solution");
+            else return c/-b;
+        }
+        return ( (-b + sqrt(-b + b*b -complex(4.0,0.0)*a*c)) / (complex(2.0,0.0)*a) );
     }
 }
 
