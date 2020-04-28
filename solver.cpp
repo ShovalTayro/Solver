@@ -149,15 +149,12 @@ namespace solver{
            y.b == complex<double>(0.0,0.0) && 
            y.c != complex<double>(0.0,0.0)) return ComplexVariable(x.a / y.c , x.b / y.c, x.c / y.c);
 
-        else if(y.a == complex<double>(0.0,0.0) &&
-           y.b != complex<double>(0.0,0.0) && 
-           y.c == complex<double>(0.0,0.0)) return ComplexVariable(0, x.b / y.b , 0);
-
-        else if(y.a != complex<double>(0.0,0.0) &&
-           y.b != complex<double>(0.0,0.0) && 
-           y.c == complex<double>(0.0,0.0)) return ComplexVariable(x.a / y.a, x.b / y.b , 0);
-
-        else __throw_invalid_argument("can't divied")
+        /*
+        *******************
+        *******************
+        *******************
+        */
+       return ComplexVariable(0.0, 0.0 , 0.0);
         
     }
 
