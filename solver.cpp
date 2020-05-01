@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include <complex>
+#include <iostream>
 
 using namespace std;
 
@@ -27,7 +28,7 @@ namespace solver{
         if(x.a!=0 && y.b!=0) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
         if(x.b!=0 && y.a!=0) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
         //can make the operator
-        return RealVariable(x.a * y.c + y.a * x.c + x.c * y.b,
+        return RealVariable(x.a * y.c + y.a * x.c + x.b * y.b,
                             x.b * y.c + y.b * x.c,
                             x.c * y.c);
     }
@@ -36,23 +37,28 @@ namespace solver{
         if(n==0) __throw_invalid_argument("Error - divideed by zero");
         return RealVariable((x.a)/n, (x.b)/n, (x.c)/n);
     }
-
-    RealVariable operator/ (const double n, const RealVariable& y){
-        /*
-        *********************
-        *********************
-        *********************
-    */
-   return RealVariable(0,0,0);
-    }
-    
+  
     RealVariable operator/ (const RealVariable& x, const RealVariable& y){
-      /*
-        ********************
-        ********************
-        ********************
-    */
-   return RealVariable(0,0,0);
+        RealVariable z;
+        //set z as x at the begining
+        z.a= x.a;
+        z.b= x.b;
+        z.c= x.c;
+        //check full divide of every parameter of x in any parameter of y
+        if (x.a != 0 &&y.a != 0 ){
+            //this divide will bring us natural number- then update our variable
+            z.a =0;
+            z.c+= x.a/y.a;
+        }
+        if (x.a != 0 && y.b != 0 ){
+            z.a =0;
+            z.b+= x.a/y.b;   
+        }
+        if (x.b != 0 && y.b != 0){
+            z.c+= z.b/y.b;
+            z.b =0;
+        }
+        return z;
     }
     
     RealVariable operator- (const double n, const RealVariable& x){
@@ -121,7 +127,7 @@ namespace solver{
         if(x.a != complex(0.0,0.0) && y.b != complex(0.0,0.0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
         if(x.b != complex(0.0,0.0) && y.a != complex(0.0,0.0)) __throw_invalid_argument("The power is bigger then 2 , can't multiple this numbers");
         //can make the operator
-        return ComplexVariable(x.a * y.c + y.a * x.c + x.c * y.b,
+        return ComplexVariable(x.a * y.c + y.a * x.c + x.b * y.b,
                             x.b * y.c + y.b * x.c,
                             x.c * y.c);
     }
@@ -130,34 +136,32 @@ namespace solver{
         if (n == complex(0.0,0.0)) __throw_invalid_argument("can't divide by zero");
         return ComplexVariable((x.a)/n, (x.b)/n , (x.c)/n);
     }
-
-    ComplexVariable operator/ (const complex<double> n, const ComplexVariable& y){
-        /*
-        *******************
-        *******************
-        *******************
-        */
-       return ComplexVariable(0.0, 0.0 , 0.0);
+  
+    ComplexVariable operator/ (const ComplexVariable& x, const ComplexVariable& y){
+        ComplexVariable z;
+        //set z as x at the beggining
+        z.a= x.a;
+        z.b= x.b;
+        z.c= x.c;
+        //check full divide of every parameter of x in any parameter of y
+        if (x.a != complex<double> (0) &&y.a != complex<double> (0) ){
+            //this divide will bring us natural number- then update our variable
+            z.a =0;
+            z.c+= x.a/y.a;
+        }
+        if (x.a != complex<double> (0) && y.b != complex<double> (0) ){
+            //this divide will bring us 'b' number- then update our variable
+            z.a =0;
+            z.b+= x.a/y.b;   
+        }
+        if (x.b != complex<double> (0) && y.b != complex<double> (0)){
+            //this divide will bring us natural number- then update our variable
+            z.c+= z.b/y.b;
+            z.b =0;
+        }
+        return z;
     }
     
-    ComplexVariable operator/ (const ComplexVariable& x, const ComplexVariable& y){
-        if(y.a == complex<double>(0.0,0.0) &&
-           y.b == complex<double>(0.0,0.0) && 
-           y.c == complex<double>(0.0,0.0)) __throw_invalid_argument("can't divided by zero");
-        
-        else if(y.a == complex<double>(0.0,0.0) &&
-           y.b == complex<double>(0.0,0.0) && 
-           y.c != complex<double>(0.0,0.0)) return ComplexVariable(x.a / y.c , x.b / y.c, x.c / y.c);
-
-        /*
-        *******************
-        *******************
-        *******************
-        */
-       return ComplexVariable(0.0, 0.0 , 0.0);
-        
-    }
-
     ComplexVariable operator- (const ComplexVariable& x, const complex<double> n){
         return ComplexVariable(x.a, x.b , x.c-n);   
     }
@@ -187,7 +191,7 @@ namespace solver{
     }
     
     ComplexVariable operator== (const ComplexVariable& x, const complex<double> n){
-        return x-n;
+       return x-n;
     }
     
     ComplexVariable operator== (const ComplexVariable& x, const ComplexVariable& y){
@@ -202,11 +206,13 @@ namespace solver{
         if(a == 0) {
             //if there is no X
             if(b == 0 && c != 0) __throw_invalid_argument("To the equation have no solution");
+            if(b == 0 && c == 0) return 0;
             else return c/-b;
         }
 
-        if((-b + b*b -4*a*c) >= 0){
-            return ( (-b + sqrt(-b + b*b -4*a*c)) / (2*a) );
+        if((b*b -4*a*c) >= 0){
+            
+            return ( (-b + sqrt(b*b -4*a*c)) / (2*a) );
         }
         else __throw_invalid_argument("There is no real solution");
     }
@@ -215,14 +221,14 @@ namespace solver{
         complex<double> a = x.a;
         complex<double> b = x.b;
         complex<double> c = x.c;
-        
         //if it is a linear equation
         if(a == complex(0.0,0.0)) {
             //if there is no X
             if(b == complex(0.0,0.0) && c != complex(0.0,0.0)) __throw_runtime_error("To the equation have no solution");
+            if(b == complex(0.0,0.0) && c == complex(0.0,0.0)) return complex<double>(0,0); 
             else return c/-b;
         }
-        return ( (-b + sqrt(-b + b*b -complex(4.0,0.0)*a*c)) / (complex(2.0,0.0)*a) );
+        return ( (-b + sqrt(b*b -complex(4.0,0.0)*a*c)) / (complex(2.0,0.0)*a) );
     }
 }
 
