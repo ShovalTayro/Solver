@@ -37,7 +37,11 @@ namespace solver{
         if(n==0) __throw_invalid_argument("Error - divideed by zero");
         return RealVariable((x.a)/n, (x.b)/n, (x.c)/n);
     }
-  
+/*
+    RealVariable operator/ (const double n, const RealVariable& y){
+        return RealVariable(0,0,0);
+    }
+ */   
     RealVariable operator/ (const RealVariable& x, const RealVariable& y){
         RealVariable z;
         //set z as x at the begining
@@ -136,7 +140,11 @@ namespace solver{
         if (n == complex(0.0,0.0)) __throw_invalid_argument("can't divide by zero");
         return ComplexVariable((x.a)/n, (x.b)/n , (x.c)/n);
     }
-  
+/*
+    ComplexVariable operator/ (const complex<double> n, const ComplexVariable& y){
+       return ComplexVariable(0.0, 0.0 , 0.0);
+    }
+ */   
     ComplexVariable operator/ (const ComplexVariable& x, const ComplexVariable& y){
         ComplexVariable z;
         //set z as x at the beggining
